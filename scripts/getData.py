@@ -64,6 +64,8 @@ class getData :
             new_header = df.iloc[0]  # grab the first row for the header
             df = df[1:]  # take the data less the header row
             df.columns = new_header  # set the header row as the df header
+            # Change data type
+            df['transcript_position'] = df['transcript_position'].astype(int)
             # Assign to self to store
             self.label_df = df
         return self.label_df
@@ -116,4 +118,3 @@ class getData :
         else :
             df = pd.DataFrame(self.data)
             return df
-
