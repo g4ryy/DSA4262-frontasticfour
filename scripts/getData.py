@@ -4,6 +4,28 @@ import pandas as pd
 
 
 class getData :
+    """
+    A class used to obtain the the raw data and label data for the purposes of model training / evaluation
+
+    Attributes
+    ---------
+    path_to_data : str
+        The absolute path to where the data.json file (the raw data) is stored
+    path_to_labels : str
+        The absolute path to where the data.info file (the labels) is stored
+    data : Dict
+        The dictionary used to store the parsed data from the raw json file
+    label_df : pandas.DataFrame
+        DataFrame used to store the class labels parsed from the data.info file
+
+    Methods
+    ---------
+    get_labels : pandas.DataFrame
+        Parses the data.info file and returns the class labels formatted in a pandas DataFrame
+    det_data : Dict or pandas.DataFrame
+        Parses the data.json file and returns the parsed raw data in either a dictionary or pandas DataFrame format
+
+    """
     def __init__(self,
                  path_to_data="/home/ubuntu/studies/ProjectStorage/data/data.json",
                  path_to_labels="/home/ubuntu/studies/ProjectStorage/data/data.info"):
@@ -24,66 +46,74 @@ class getData :
         self.label_df = None
 
     def get_labels(self):
+        """
+        Get all the label info
+        """
+
+        # If the labels haven't yet been parsed
         if not self.label_df :
+            # Open the data.info file and read all the lines. Can do this because the file is relatively small
             with open(self.path_to_labels, "r") as file:
                 lines = file.readlines()
+            # Cleaning up of text
             df = list(map(lambda x: x.replace("\n", ""), lines))
             df = list(map(lambda x: x.split(","), df))
+            # Convert to pandas DataFrame
             df = pd.DataFrame(df)
+            # Tidying up column names
             new_header = df.iloc[0]  # grab the first row for the header
             df = df[1:]  # take the data less the header row
             df.columns = new_header  # set the header row as the df header
+            # Assign to self to store
             self.label_df = df
         return self.label_df
 
-    def get_data(self):
-        pass
+    def get_data(self, num_entries=10, return_df=True):
+        """
 
+        Parameters
+        ----------
+        num_entries=10 : int
+            The number of datapoints in the raw data to read in. By default it is 10 for testing.
+            SET TO 0 READ IN ALL THE DATA
+        return_df=True : bool
+            Whether or not to return the parsed data as a Pandas DataFrame. Otherwise returned as a dictionary
 
+        Returns
+        -------
+        dict or DataFrame of parsed data
+        """
 
+        # Reset the self.data dictionary tracker
+        self.data = {key : [] for key in self.data.keys()}
+        # Open the data.json file
+        with open(self.path_to_data, 'r') as f:
+            # Check that the number of desired entries hasn't been reached
+            for idx, line in enumerate(f):
+                if num_entries != 0 and num_entries < idx+1:
+                    break
+                # Read in just that line. Cannot read in all lines at once as the data is too large
+                line = json.loads(line)
+                # Obtain transcript and sub-dictionary
+                for transcript, sub1 in line.items():
+                    # Add transcript to dictionary
+                    self.data['transcript'].append(transcript)
+                    # Obtain position number and sub-dict
+                    for position, sub2 in sub1.items():
+                        # Add position as an integer to the dictionary
+                        self.data['position'].append(int(position))
+                        # Obtain base and values
+                        for bases, values in sub2.items():
+                            # Add base to dictionary
+                            self.data['k-mer bases'].append(bases)
+                            # Convert the values to a numpy array and add to dictionary
+                            values = np.array(values)
+                            self.data['values'].append(values)
 
+        # Return either the dictionary or pandas.Dataframe representation
+        if not return_df:
+            return self.data
+        else :
+            df = pd.DataFrame(self.data)
+            return df
 
-# # Where the json file is
-# fname = "../data/data.json"
-# # Where to place the output file
-# resname = "../data/parsed_data_carel.pkl"
-#
-# r = {
-#     "transcript" : [],
-#     "position" : [],
-#     "k-mer bases": [],
-#     # Comment out since we don't need all the raw values
-#     # "values" : []
-# }
-# tmp = {f"f{i+1}_stats" : [] for i in range(10)}
-# r.update(tmp)
-#
-#
-# with open(fname, 'r') as f:
-#     for idx, line in enumerate(f):
-#         line=json.loads(line)
-#         for transcript, sub1 in line.items():
-#             r['transcript'].append(transcript)
-#             for position, sub2 in sub1.items():
-#                 r['position'].append(int(position))
-#                 for bases, values in sub2.items():
-#                     r['k-mer bases'].append(bases)
-#                     values = np.array(values)
-#                     # Comment out since we don't need all the raw values
-#                     # r['values'].append(values)
-#
-#                     # Computing summary statistics
-#                     mean = np.mean(values, axis=0).reshape(1, -1)
-#                     quantiles = np.quantile(values, [0.25, 0.5, 0.75], axis = 0)
-#                     mini = np.min(values, axis=0).reshape(1, -1)
-#                     maxi = np.max(values, axis=0).reshape(1, -1)
-#                     combined=np.concatenate((mean, mini, quantiles, maxi), axis=0)
-#
-#                     for i in range(10):
-#                         tmp_i=list(combined[:, 0].reshape(-1,))
-#                         r[f"f{i+1}_stats"].append(tmp_i)
-#
-#
-# r = pd.DataFrame(r)
-#
-# r.to_pickle(resname)
