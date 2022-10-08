@@ -20,6 +20,15 @@ print("Done\n")
 path_to_pkl="/home/ubuntu/studies/ProjectStorage/data/parsed_data_carel.pkl"
 # Path to the report output folder
 path_to_report = ""
+# Path to submission dataset1 (preprocessed pkl file)
+path_to_dataset1 = ""
+# Path to dataset 1 submission CSV
+dataset1_out = ""
+# Path to submission dataset2 (preprocessed pkl file)
+path_to_dataset2 = ""
+# Path to dataset 2 submission CSV
+dataset2_out = ""
+
 
 ##### Data Preparation #####
 
@@ -90,3 +99,66 @@ with open(path_to_report, "w") as f:
     f.write(f"Logistic Ridge Regression summary report : \n\n{ridge_LogReg_report}\n\n")
     f.write(f"Dummy Classifier (Majority class) summary report : \n\n{dummy_report}")
 print("Done\n")
+
+#### Perform predictions on new data ####
+
+## DATASET 1 ##
+df = pd.read_pickle(path_to_dataset1)
+
+# Expand the features
+feature_cols = list(filter(lambda x : re.search("stats", x) is not None, df.columns))
+for idx, col in enumerate(feature_cols):
+    df[[f"{idx+1}_{x}" for x in range(1, 7)]] = df.apply(lambda x : x[col],
+                                                           result_type="expand",
+                                                          axis=1)
+df = df[df.columns.difference(feature_cols)]
+
+# Track index columns for final dataframe
+idx_cols = ["transcript", "position", "k-mer bases"]
+
+# Obtain feature matrix
+X = np.array(df[df.columns.difference(idx_cols)])
+
+# Obtain prediction scores
+pred = LogReg.predict_proba(X)
+# Keep score for "1" class
+pred = pred[:, 1]
+# Append prediction scores
+df = df[idx_cols].copy()
+df['scores'] = pred
+
+# Cleanup columns
+df = df.drop("k-mer bases", axis = 1)
+df.columns = ["transcript_id", "transcript_position", "score"]
+df.to_csv(dataset1_out, index=False)
+
+## DATASET 2 ##
+df = pd.read_pickle(path_to_dataset2)
+
+# Expand the features
+feature_cols = list(filter(lambda x : re.search("stats", x) is not None, df.columns))
+for idx, col in enumerate(feature_cols):
+    df[[f"{idx+1}_{x}" for x in range(1, 7)]] = df.apply(lambda x : x[col],
+                                                           result_type="expand",
+                                                          axis=1)
+df = df[df.columns.difference(feature_cols)]
+
+# Track index columns for final dataframe
+idx_cols = ["transcript", "position", "k-mer bases"]
+
+# Obtain feature matrix
+X = np.array(df[df.columns.difference(idx_cols)])
+
+# Obtain prediction scores
+pred = LogReg.predict_proba(X)
+# Keep score for "1" class
+pred = pred[:, 1]
+# Append prediction scores
+df = df[idx_cols].copy()
+df['scores'] = pred
+
+# Cleanup columns
+df = df.drop("k-mer bases", axis = 1)
+df.columns = ["transcript_id", "transcript_position", "score"]
+df.to_csv(dataset2_out, index=False)
+
