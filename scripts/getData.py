@@ -118,3 +118,25 @@ class getData :
         else :
             df = pd.DataFrame(self.data)
             return df
+
+    def get_unique_kmers(self):
+        """
+        Returns a dictionary of 5-mer : unique_index for each of the 66 unique possible 5-mers for the
+        m6A modification
+
+        """
+        data = set()
+        with open(self.path_to_data, 'r') as f:
+            # Check that the number of desired entries hasn't been reached
+            for idx, line in enumerate(f):
+                # Read in just that line. Cannot read in all lines at once as the data is too large
+                line = json.loads(line)
+                # Obtain transcript and sub-dictionary
+                for transcript, sub1 in line.items():
+                    for position, sub2 in sub1.items():
+                        for bases, values in sub2.items():
+                            indiv_bases = [bases[i:i + 5] for i in range(3)]
+                            for tmp in indiv_bases:
+                                data.add(tmp)
+        data = {item : idx for idx, item in enumerate(data)}
+        return data
