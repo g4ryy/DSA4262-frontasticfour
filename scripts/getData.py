@@ -45,13 +45,16 @@ class getData :
         # Labels
         self.label_df = None
 
+        ### Unique K-Mers ###
+        self.k_mers = None
+
     def get_labels(self):
         """
         Get all the label info
         """
 
         # If the labels haven't yet been parsed
-        if not self.label_df :
+        if self.label_df is None:
             # Open the data.info file and read all the lines. Can do this because the file is relatively small
             with open(self.path_to_labels, "r") as file:
                 lines = file.readlines()
@@ -125,18 +128,21 @@ class getData :
         m6A modification
 
         """
-        data = set()
-        with open(self.path_to_data, 'r') as f:
-            # Check that the number of desired entries hasn't been reached
-            for idx, line in enumerate(f):
-                # Read in just that line. Cannot read in all lines at once as the data is too large
-                line = json.loads(line)
-                # Obtain transcript and sub-dictionary
-                for transcript, sub1 in line.items():
-                    for position, sub2 in sub1.items():
-                        for bases, values in sub2.items():
-                            indiv_bases = [bases[i:i + 5] for i in range(3)]
-                            for tmp in indiv_bases:
-                                data.add(tmp)
-        data = {item : idx for idx, item in enumerate(data)}
-        return data
+        if self.k_mers is None:
+            data = set()
+            with open(self.path_to_data, 'r') as f:
+                # Check that the number of desired entries hasn't been reached
+                for idx, line in enumerate(f):
+                    # Read in just that line. Cannot read in all lines at once as the data is too large
+                    line = json.loads(line)
+                    # Obtain transcript and sub-dictionary
+                    for transcript, sub1 in line.items():
+                        for position, sub2 in sub1.items():
+                            for bases, values in sub2.items():
+                                indiv_bases = [bases[i:i + 5] for i in range(3)]
+                                for tmp in indiv_bases:
+                                    data.add(tmp)
+            data = {item : idx for idx, item in enumerate(data)}
+            self.k_mers = data
+        return self.k_mers
+
