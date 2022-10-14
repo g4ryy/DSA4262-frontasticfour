@@ -1,6 +1,8 @@
 import json
 import numpy as np
 import pandas as pd
+from pathlib import Path
+import os
 
 
 """
@@ -10,12 +12,12 @@ This python file takes a raw data json file and converts it to a dataframe of co
 6 elements denoting the [mean, min, 1st quartile, median, 3rd quartile, max] for that reading
 """
 
-
+file_path = os.path.join(Path(os.getcwd()).parent.parent.absolute(), 'data')
 
 # Where the json file is
-fname = "../data/data.json"
+fname = os.path.join(file_path, "data.json")
 # Where to place the output file
-resname = "../data/parsed_data_carel.pkl"
+resname = os.path.join(file_path, "parsed_data_carel.pkl")
 
 r = {
     "transcript" : [],
