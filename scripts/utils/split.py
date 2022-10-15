@@ -41,19 +41,6 @@ def train_test_split(df, train_proportion=0.8):
                                                           axis=1)
     
     train_df = train_df[train_df.columns.difference(feature_cols)]
-    
-    
-    label0 = train_df[train_df.label=="0"]
-    label1 = train_df[train_df.label=="1"]
-    # upsample minority
-    label1_upsampled = resample(label1,
-                            replace=True, # sample with replacement
-                            n_samples=len(label0), # match number in majority class
-                            random_state=27) # reproducible results
-
-    # combine majority and upsampled minority
-    train_df = pd.concat([label0, label1_upsampled])
-    test_df = test_df[train_df.columns.difference(feature_cols)]
     test_df = test_df[train_df.columns.difference(feature_cols)]
     X_train = np.array(train_df[train_df.columns.difference(['label'])])
     X_test = np.array(test_df[test_df.columns.difference(['label'])])
