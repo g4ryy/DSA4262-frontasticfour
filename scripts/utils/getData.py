@@ -1,6 +1,11 @@
 import json
 import numpy as np
 import pandas as pd
+from pathlib import Path
+import os
+
+
+file_path = os.path.join(Path(os.getcwd()).parent.parent.absolute(), 'data')
 
 
 class getData :
@@ -27,8 +32,8 @@ class getData :
 
     """
     def __init__(self,
-                 path_to_data="/home/ubuntu/studies/ProjectStorage/data/data.json",
-                 path_to_labels="/home/ubuntu/studies/ProjectStorage/data/data.info"):
+                 path_to_data=os.path.join(file_path, "data.json"),
+                 path_to_labels=os.path.join(file_path, "data.info")):
 
         ### Raw Data ###
         self.path_to_data = path_to_data
