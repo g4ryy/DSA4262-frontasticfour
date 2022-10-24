@@ -74,7 +74,7 @@ class getData :
             self.label_df = df
         return self.label_df
 
-    def get_data(self, num_entries=10, return_df=True):
+    def get_data(self, num_entries=10, return_df=True, min_read_count=20):
         """
 
         Parameters
@@ -84,6 +84,8 @@ class getData :
             SET TO 0 READ IN ALL THE DATA
         return_df=True : bool
             Whether or not to return the parsed data as a Pandas DataFrame. Otherwise returned as a dictionary
+        min_read_count=0 : int
+            The minimum number of reads (length of the values list) each transcript needs to have before being included in the returned dataframe.
 
         Returns
         -------
@@ -102,19 +104,24 @@ class getData :
                 line = json.loads(line)
                 # Obtain transcript and sub-dictionary
                 for transcript, sub1 in line.items():
-                    # Add transcript to dictionary
-                    self.data['transcript'].append(transcript)
                     # Obtain position number and sub-dict
                     for position, sub2 in sub1.items():
-                        # Add position as an integer to the dictionary
-                        self.data['position'].append(int(position))
                         # Obtain base and values
                         for bases, values in sub2.items():
-                            # Add base to dictionary
-                            self.data['k-mer bases'].append(bases)
-                            # Convert the values to a numpy array and add to dictionary
-                            values = np.array(values)
-                            self.data['values'].append(values)
+                            # Check that minimum read count is met
+                            if len(values) > min_read_count:
+                                # Add transcript to dictionary
+                                self.data['transcript'].append(transcript)
+
+                                # Add position as an integer to the dictionary
+                                self.data['position'].append(int(position))
+
+                                # Add base to dictionary
+                                self.data['k-mer bases'].append(bases)
+
+                                # Convert the values to a numpy array and add to dictionary
+                                values = np.array(values)
+                                self.data['values'].append(values)
 
         # Return either the dictionary or pandas.Dataframe representation
         if not return_df:
@@ -146,4 +153,3 @@ class getData :
             data = {item : idx for idx, item in enumerate(data)}
             self.k_mers = data
         return self.k_mers
-

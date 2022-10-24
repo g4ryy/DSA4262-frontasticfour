@@ -200,19 +200,3 @@ class prepInferData():
         loader = DataLoader(self, batch_size=batchsize,shuffle=False)
 
         return loader
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
