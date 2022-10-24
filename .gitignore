@@ -1,4 +1,3 @@
 pynb_checkpoints
 */.ipynb_checkpoints/*
-**/__pycache__/ 
-./*.csv
+**/__pycache__/
