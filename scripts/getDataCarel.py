@@ -69,6 +69,7 @@ class getData :
             df.columns = new_header  # set the header row as the df header
             # Change data type
             df['transcript_position'] = df['transcript_position'].astype(int)
+            df['label'] = df['label'].astype(int)
             # Assign to self to store
             self.label_df = df
         return self.label_df
