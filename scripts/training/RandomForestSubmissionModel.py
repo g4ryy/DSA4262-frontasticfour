@@ -135,10 +135,9 @@ with open(path_to_report, "w") as f:
     f.write(f"Random Forest AUC Score : \n\n{pr_scoredummy}\n\n")
 print("Done\n")
 
-#### Perform predictions on new data ####
 
 
-### Perform Predictions on Training Dataset ()
+### Perform Predictions Dataset 0
 
 df = pd.read_pickle(path_to_pkl)
 
@@ -169,7 +168,7 @@ df = df.drop("k-mer bases", axis = 1)
 df.columns = ["transcript_id", "transcript_position", "score"]
 df.to_csv(dataset0_out, index=False)
 
-
+#### Perform predictions on new data ####
 
 ## DATASET 1 ##
 df = pd.read_pickle(path_to_dataset1)
