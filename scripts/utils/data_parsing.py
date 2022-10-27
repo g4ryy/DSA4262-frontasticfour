@@ -6,9 +6,10 @@ import os
 
 
 """
-This python file takes a raw data json file and converts it to a dataframe of columns :
+This python file takes a raw data json file and converts it to a dataframe of columns : 
 
-[transcript, position, k-mer bases, f1_stats , . . . . f9_stats] where each of the fi_stats is a list of
+[transcript, position, k-mer bases, f1_stats , . . . . f9_stats] where each of the fi_stats is a list of 
+
 6 elements denoting the [mean, min, 1st quartile, median, 3rd quartile, max] for that reading
 """
 
