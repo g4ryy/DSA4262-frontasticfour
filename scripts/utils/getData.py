@@ -56,7 +56,7 @@ class getData :
         """
 
         # If the labels haven't yet been parsed
-        if not self.label_df :
+        if self.label_df is None:
             # Open the data.info file and read all the lines. Can do this because the file is relatively small
             with open(self.path_to_labels, "r") as file:
                 lines = file.readlines()
@@ -71,6 +71,7 @@ class getData :
             df.columns = new_header  # set the header row as the df header
             # Change data type
             df['transcript_position'] = df['transcript_position'].astype(int)
+            df['label'] = df['label'].astype(int)
             # Assign to self to store
             self.label_df = df
         return self.label_df

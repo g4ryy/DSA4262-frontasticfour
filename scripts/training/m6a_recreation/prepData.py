@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import getDataCarel as gd
+import getData as gd
 import torch
 from torch.utils.data import WeightedRandomSampler, DataLoader
 import pickle

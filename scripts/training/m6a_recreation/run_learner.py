@@ -19,6 +19,7 @@ parser.add_argument("-nentries", type=int, help="How many entries from the train
 parser.add_argument("-batchsize", type=int, help="Batchsize for training", default=128)
 parser.add_argument("-lr", type=float, help="Learning Rate", default=0.01)
 parser.add_argument("-nepoch", type=int, help="Number of Epochs", default=50)
+parser.add_argument("-utilspath", type=str, help="Path to the folder with Utility scripts", default="../../utils/")
 
 args = parser.parse_args()
 
@@ -56,9 +57,8 @@ print(f"Using {args.nentries:,} entries with batchsize : {args.batchsize}\n")
 
 # Add scripts folder to path
 import sys
-pathname="/Users/carelchay/Desktop/School/Modules/DSA4262/Project 2/DSA4262-frontasticfour/scripts/utils"
-if pathname not in sys.path:
-    sys.path.append(pathname)
+if args.utilspath not in sys.path:
+    sys.path.append(args.utilspath)
 
 ### Get the training data ###
 print("Importing & Obtaining label Dataframe . . . ", end= "")
@@ -168,7 +168,9 @@ for epoch in range(args.nepoch):
     epoch_loss.append(avg_epoch_loss)
 
     # Save the model state at this epoch
-    epoch_path = f"{args.ptp}/epoch_{epoch}.pth"
+    epoch_path = os.path.join(args.ptp, f"epoch_{epoch}.pth")
+    # Check that directory exists otherwise create it
+    os.makedirs(os.path.dirname(epoch_path), exist_ok=True)
     torch.save(model.state_dict(), epoch_path)
 
     # Compute the validation loss for this epoch
@@ -199,6 +201,9 @@ tdf = pd.DataFrame({
     "avg_validation_loss" : validation_losses
 })
 
+# Check that directory exists otherwise create it
+os.makedirs(os.path.dirname(args.pteo), exist_ok=True)
+# Write out to csv file
 tdf.to_csv(args.pteo, index=False)
 
 #### Perform Evaluation ####
@@ -246,5 +251,7 @@ with torch.no_grad():
 val_output = evalData.df[['gene_id', 'transcript', 'position', 'label']].copy()
 val_output['pred_score'] = np.array(results_scores)
 
+# Check that directory exists otherwise create it
+os.makedirs(os.path.dirname(args.ptvo), exist_ok=True)
 # output to path
 val_output.to_csv(args.ptvo, index=False)
