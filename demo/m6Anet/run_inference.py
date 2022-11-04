@@ -12,13 +12,14 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Run the inference of m6ANet on unlabelled data')
 parser.add_argument("ptd", type=str, help="Path to datafile (json format)")
-parser.add_argument("ptp", type=str, help="Path to parameters folder. Which model parameters to use \n(Should be a .pth file)")
-parser.add_argument("pto", type=str, help="Path to output csv file. Where to output the dataset with attached probability scores")
+parser.add_argument("-ptp", type=str, help="Which model parameters to use (Should be a .pth file)\n By default uses the parameter set mentioned in the report",
+                    default = "./demo_params.pth")
 
-parser.add_argument("-nentries", type=int, help="How many entries from the raw data to use. \nSet to 0 to use all data.", default=1000)
-parser.add_argument("-batchsize", type=int, help="Batchsize to use", default=256)
-parser.add_argument("-il", type=int, help="No. of inference loops to perform before averaging the results", default=200)
-parser.add_argument("-utilspath", type=str, help="Path to the folder with Utility scripts", default="../../utils/")
+parser.add_argument("-pto", type=str, help="Path to output csv file. Where to output the dataset with attached probability scores.\n By default places the results in the same folder", default="NA")
+parser.add_argument("-nentries", type=int, help="How many entries from the raw data to use. Default of 1000.\nSet to 0 to use all data.", default=1000)
+parser.add_argument("-batchsize", type=int, help="Batchsize to use. Default is 256", default=256)
+parser.add_argument("-il", type=int, help="No. of inference loops to perform before averaging the results. \n Default is 5", default=10)
+parser.add_argument("-utilspath", type=str, help="Path to the folder with Utility scripts", default="../utils/")
 
 args = parser.parse_args()
 
@@ -27,22 +28,12 @@ import sys
 if args.utilspath not in sys.path:
     sys.path.append(args.utilspath)
 
+# Where to write out the results file
+if args.pto == "NA":
+    outfile = os.path.join(os.path.dirname(args.ptd), f"{os.path.basename(args.ptd).split('.')[0]}_results.csv")
+else:
+    outfile = args.pto
 
-
-# # Where is the raw Data Stored
-# path_to_data = "/Users/carelchay/Desktop/School/Modules/DSA4262/Project 2/data/data.json"
-# # Which model parameter to use
-# path_to_params = "/Users/carelchay/Desktop/School/Modules/DSA4262/Project 2/data/model_params/epoch_4.pth"
-# # Where to output the dataset with attached probability scores
-# path_to_output = "/Users/carelchay/Desktop/School/Modules/DSA4262/Project 2/data/val_output256.csv"
-
-
-# How many entries from the raw data to use
-# num_entries = 1000
-# Batchsize for Inference. Don't change this
-# batchsize = 256
-# How many loops to perform before averaging the results
-# infer_loops = 200
 
 ### Data Loader class ###
 print("\nImporting & preparing dataloader for INFERENCE data . . . ", end= "")
@@ -64,7 +55,7 @@ model.eval()
 print("Done\n")
 
 
-print(f"Total of {infersize} entries in inference set, with batchsize : {args.batchsize}. Total of {len(inferDataLoader)} steps per loop\n")
+print(f"Total of {infersize} entries in inference set, with batchsize : {args.batchsize}.\nTotal of {len(inferDataLoader)} steps per loop\n")
 
 ### Run Inference ###
 
@@ -88,7 +79,7 @@ with torch.no_grad():
             # Store Predicted probabilities
             all_scores = torch.concat([all_scores, y_predict])
 
-        if (runs+1)%50 ==0:
+        if (runs+1)%5 ==0:
             total_time = time.time() - start_time
             mins = divmod(total_time, 60)
             print(f"Completed run {runs+1}/{args.il}, Time Taken : {mins[0]} Mins, {mins[1]:.2f} seconds\n")
@@ -113,10 +104,13 @@ res_data['score'] = np.array(all_scores)
 # rename columns
 res_data.columns = ['transcript_id', 'transcript_position', 'score']
 
+print(f"\nCompleted score calculations on dataset with {args.il} averaged scores.")
+
 # Write to CSV
 # Check that directory exists otherwise create it
-os.makedirs(os.path.dirname(args.pto), exist_ok=True)
-res_data.to_csv(args.pto, index=False)
+os.makedirs(os.path.dirname(outfile), exist_ok=True)
+res_data.to_csv(outfile, index=False)
+print(f"\nWriting out results file to {outfile}.\n")
 
-print(f"\nCompleted score calculations on dataset with {args.il} averaged scores")
+
 
