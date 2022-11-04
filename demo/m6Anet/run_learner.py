@@ -11,15 +11,18 @@ import argparse
 parser = argparse.ArgumentParser(description='Run the training script for m6aNet')
 parser.add_argument("ptd", type=str, help="Path to datafile (json format)")
 parser.add_argument("ptl", type=str, help="Path to labels for the training data")
-parser.add_argument("ptp", type=str, help="Path to parameters folder. Where to place model parameter files after each epoch")
-parser.add_argument("ptvo", type=str, help="Where to output the validation dataset with attached probability scores (should be a csv file)")
-parser.add_argument("pteo", type=str, help="Where to output the dataframe of epoch vs avg loss (should be a csv file)")
+parser.add_argument("-ptp", type=str, help="Path to parameters folder. Where to place model parameter files after each epoch.\nBy default places them in a folder from where this files was called.",
+                    default="./demo_params")
+parser.add_argument("-ptvo", type=str, help="Where to output the validation dataset with attached probability scores (should be a csv file)\nBy default places them in a results folder within the current directory.",
+                    default="./learner_results/val_output.csv")
+parser.add_argument("-pteo", type=str, help="Where to output the dataframe of epoch vs avg loss (should be a csv file)\nBy default places them in a results folder within the current directory.",
+                    default="./learner_results/epoch_loss.csv")
 
 parser.add_argument("-nentries", type=int, help="How many entries from the training data to use. \nSet to 0 to use all data. \nFor the training dataset need to use at least 5000 entries ", default=5000)
 parser.add_argument("-batchsize", type=int, help="Batchsize for training", default=128)
 parser.add_argument("-lr", type=float, help="Learning Rate", default=0.01)
-parser.add_argument("-nepoch", type=int, help="Number of Epochs", default=50)
-parser.add_argument("-utilspath", type=str, help="Path to the folder with Utility scripts", default="../../utils/")
+parser.add_argument("-nepoch", type=int, help="Number of Epochs", default=3)
+parser.add_argument("-utilspath", type=str, help="Path to the folder with Utility scripts", default="../utils/")
 
 args = parser.parse_args()
 
@@ -132,7 +135,7 @@ validation_losses = []
 # Start with large loss
 last_loss = 100
 # Can exceed this no. of times
-patience = 1000
+patience = 10000
 # Track no. of times it exceeds
 triggertimes = 0
 
@@ -180,7 +183,7 @@ for epoch in range(args.nepoch):
 
     if current_loss > last_loss:
         triggertimes +=1
-        print(f"Trigger times : {triggertimes}")
+        # print(f"Trigger times : {triggertimes}")
         last_loss = current_loss
         if triggertimes > patience:
             print(f"Validation loss not improving. Stopping training early at epoch {epoch+1}")
@@ -205,6 +208,7 @@ tdf = pd.DataFrame({
 os.makedirs(os.path.dirname(args.pteo), exist_ok=True)
 # Write out to csv file
 tdf.to_csv(args.pteo, index=False)
+print(f"\nWrote out Epoch vs Loss output to {args.pteo}.\n")
 
 #### Perform Evaluation ####
 
@@ -255,3 +259,4 @@ val_output['pred_score'] = np.array(results_scores)
 os.makedirs(os.path.dirname(args.ptvo), exist_ok=True)
 # output to path
 val_output.to_csv(args.ptvo, index=False)
+print(f"\nWrote out Validation set output to {args.ptvo}.\n")
