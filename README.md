@@ -19,11 +19,13 @@ To run some training / inference with the model discussed in our report, follow 
 ## Running Inference
 A sample dataset has been provided to run a small prediction / inference demo. From within `DSA4262-frontasticfour/demo/` do the following : 
 1. Enter the `m6Anet` folder : 
-`cd m6Anet/`
+	`cd m6Anet/`
+
 2. To run the pre-trained model on the sample dataset, call : 
-`python3 run_inference.py ../inference_sample.json`
+	`python3 run_inference.py ../inference_sample.json`
+
 The resulting csv file with the m6A modification scores will be placed in :
- `DSA4262-frontasticfour/demo/inference_sample_results.csv`
+	`DSA4262-frontasticfour/demo/inference_sample_results.csv`
 
 Predictions can be made on any dataset (with the same format) by changing the given datafile path. Call `python3 run_inference.py -h` for more details on the required input arguments. 
 
