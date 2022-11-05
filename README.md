@@ -4,7 +4,7 @@ This repository contains the files needed to recreate our group's project on m6A
 # Getting Started
 To run some training / inference with the model discussed in our report, follow these instructions : 
 
-1. Start a new AWS ubuntu instance (at least a **large** instance) 
+1. Start a **new** AWS ubuntu instance (provisioning a new instance avoids conflicts with previously set paths etc), ensure that it is at least a **large** instance type.
 2. From the home directory, clone this repo : 
 	`git clone https://github.com/g4ryy/DSA4262-frontasticfour.git`
 3. Enter the `demo` folder within our repo : 
